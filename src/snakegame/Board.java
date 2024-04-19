@@ -3,6 +3,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.Random;
 
@@ -12,10 +13,13 @@ public class Board extends  JPanel implements ActionListener {
     private Image head;
     private int dots;
     private final int RAANDOM_POSITION=20;
-    private  int apply_x;
-    private  int apply_y;
+    private  int apple_x;
+    private  int apple_y;
     private  boolean leftDirection = false;
     private  boolean rightDirection = true;
+    private  boolean upDirection = true;
+    private  boolean downDirection = true;
+    private  boolean inGame = true;
 
     private  final int DOT_SIZE = 10;     //300 * 300 = 90000 / 10 = 9000
     private final int ALL_DOTS = 9000;
@@ -30,6 +34,8 @@ public class Board extends  JPanel implements ActionListener {
         addKeyListener(new TAdapter());
         setBackground(Color.BLACK);
         setPreferredSize(new Dimension(300,300));
+
+        setFocusable(true);   // is used to run ketlistner if setfocusable(true)
 
         loadImage();
     }
@@ -64,28 +70,64 @@ public class Board extends  JPanel implements ActionListener {
 
      public void locateApple(){
          int rand = (int)(Math.random()*RAANDOM_POSITION);   // 0 and 1 => 0.6 *20 = 12*10 =120
-         apply_x = (rand * DOT_SIZE);
+         apple_x = (rand * DOT_SIZE);
 
           rand = (int)(Math.random()*RAANDOM_POSITION);   // 0 and 1 => 0.6 *20 = 12*10 =120
-         apply_y = (rand * DOT_SIZE);
+         apple_y = (rand * DOT_SIZE);
 
 
      }
 
-    public void actionPerformed(ActionEvent, e) {
 
+     public void  checkApple(){
+        if((x[0]== apple_x ) && (y[0]==apple_y)){
+            dots++;
+            locateApple();
+        }
+     }
+
+    public void actionPerformed(ActionEvent  e) {
+        if(inGame){
+            checkApple();
+        }
     }
 
-    private class TAdapter extends keyAdapter{
+    private class TAdapter extends KeyAdapter {
 
         @Override
-        public  void keyPressed(KeyEvent,e){
+        public  void keyPressed(KeyEvent e){
                 int key;
             key = e.getKeyCode();
 
-            if (key == KeyEvent.VK_LEFT) {
-                
+            if (key == KeyEvent.VK_LEFT && (!rightDirection)) {
+                leftDirection = true;
+                upDirection = false;
+                downDirection = false;
             }
+
+            if (key == KeyEvent.VK_RIGHT && (!leftDirection)) {
+                rightDirection = true;
+                upDirection = false;
+                downDirection = false;
+            }
+
+            if (key == KeyEvent.VK_UP && (!downDirection)) {
+                leftDirection = false;
+                upDirection = true;
+                downDirection = false;
+            }
+
+            if (key == KeyEvent.VK_DOWN && (!upDirection)) {
+                downDirection = true;
+                rightDirection = false;
+                leftDirection = false;
+
+            }
+
+
+
+
+
         }
     }
 
