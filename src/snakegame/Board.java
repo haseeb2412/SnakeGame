@@ -35,9 +35,10 @@ public class Board extends  JPanel implements ActionListener {
         setBackground(Color.BLACK);
         setPreferredSize(new Dimension(300,300));
 
-        setFocusable(true);   // is used to run ketlistner if setfocusable(true)
-
+        setFocusable(true);   // is used to run keylistner if setfocusable(true)
+    requestFocusInWindow();
         loadImage();
+        initGame();
     }
 
     public  void loadImage(){
@@ -105,9 +106,27 @@ public class Board extends  JPanel implements ActionListener {
             timer.stop();
         }
 
-        
+    }
 
+    public  void move(){
+        for (int i = dots; i > 0; i--) {
+            x[i] = x[i-1];
+            y[i] = y[i-1];
+        }
 
+        if (leftDirection) {
+            x[0] -= DOT_SIZE;
+        }
+        if(rightDirection){
+            x[0] +=  DOT_SIZE;
+        }
+
+        if (upDirection) {
+            y[0] -= DOT_SIZE;
+        }
+        if(downDirection){
+            y[0] +=  DOT_SIZE;
+        }
     }
 
      public void  checkApple(){
@@ -115,13 +134,58 @@ public class Board extends  JPanel implements ActionListener {
             dots++;
             locateApple();
             checkCollision();
+            move();
         }
      }
+
+     public void paintComponent(Graphics g){
+        super.paintComponent(g);
+
+        draw(g);
+     }
+
+
+    public void gameOver(Graphics g){
+        String msg = "Game Over";
+        Font font = new Font("SAN_SERIF",Font.BOLD,14);
+        FontMetrics metrics = getFontMetrics(font);
+        int x = (getWidth() - metrics.stringWidth(msg)) / 2;
+        int y = getHeight() / 2;
+        g.setColor(Color.WHITE);
+        g.setFont(font);
+        g.drawString(msg, x, y);
+    }
+
+
+    public void draw(Graphics g){
+        if(inGame){
+            g.drawImage(apple,apple_x,apple_y,DOT_SIZE,DOT_SIZE,this);
+
+            for (int z = 0; z < dots; z++) {
+                if (z == 0 ) {
+                    g.drawImage(head,x[z],y[z],DOT_SIZE,DOT_SIZE,this);
+                }else{
+                    g.drawImage(dot,x[z],y[z],DOT_SIZE,DOT_SIZE,this);
+
+
+                }
+            }
+            Toolkit.getDefaultToolkit().sync();
+        }else{
+            gameOver(g);
+        }
+
+     }
+
+
 
     public void actionPerformed(ActionEvent  e) {
         if(inGame){
             checkApple();
+            checkCollision();
+            move();
         }
+        repaint();  // change when the component look change
     }
 
     private class TAdapter extends KeyAdapter {
